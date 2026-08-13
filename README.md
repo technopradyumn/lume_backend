@@ -86,6 +86,7 @@ REFRESH_TOKEN_SECRET=<different-long-random-secret>
 REFRESH_TOKEN_EXPIRY=10d
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_ANON_KEY=<supabase-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<supabase-service-role-key>
 ```
 
 Start the API:
@@ -108,6 +109,8 @@ Start Command: npm start
 ## Media upload behavior
 
 Multer receives uploaded files before controllers process metadata. When Supabase is configured, the API uploads video and image assets to Supabase Storage and persists their URLs in MongoDB. In local development without configured Supabase credentials, temporary files are served from the backend public directory as a fallback.
+
+For production uploads, configure `SUPABASE_SERVICE_ROLE_KEY` in the backend host environment. This server-only key allows the API to upload to the configured Storage buckets; never expose it in frontend code or commit it to Git.
 
 ## Security notes
 

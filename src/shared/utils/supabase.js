@@ -4,7 +4,7 @@ import path from "path";
 
 const supabaseUrl = process.env.SUPABASE_URL || "";
 const supabaseKey =
-  process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "";
 
 const supabase =
   supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
@@ -36,22 +36,22 @@ const uploadOnSupabase = async (
           upsert: true,
         });
 
-      if (!error && data) {
-        if (fs.existsSync(localFilePath)) {
-          fs.unlinkSync(localFilePath);
-        }
-
-        const { data: publicUrlData } = supabase.storage
-          .from(bucketName)
-          .getPublicUrl(filename);
-
-        return {
-          url: publicUrlData.publicUrl,
-          duration: 120,
-        };
-      } else {
-        console.error("Supabase Storage Upload Warning:", error?.message);
+      if (error || !data) {
+        throw new Error(error?.message || "Supabase Storage upload failed");
       }
+
+      if (fs.existsSync(localFilePath)) {
+        fs.unlinkSync(localFilePath);
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(filename);
+
+      return {
+        url: publicUrlData.publicUrl,
+        duration: 120,
+      };
     }
 
     const baseUrl = getPublicBaseUrl(req);
@@ -64,6 +64,10 @@ const uploadOnSupabase = async (
     };
   } catch (error) {
     console.error("Storage upload error:", error.message);
+    if (supabase) {
+      throw error;
+    }
+
     const cleanFilename = path.basename(localFilePath);
     const baseUrl = getPublicBaseUrl(req);
 
