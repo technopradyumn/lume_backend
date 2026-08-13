@@ -94,6 +94,17 @@ Start the API:
 npm run dev
 ```
 
+### Render deployment
+
+For Render, create a **Web Service** and use the following commands:
+
+```text
+Build Command: npm install
+Start Command: npm start
+```
+
+`npm start` runs Node directly and does not depend on Nodemon, which is a local development dependency.
+
 ## Media upload behavior
 
 Multer receives uploaded files before controllers process metadata. When Supabase is configured, the API uploads video and image assets to Supabase Storage and persists their URLs in MongoDB. In local development without configured Supabase credentials, temporary files are served from the backend public directory as a fallback.
