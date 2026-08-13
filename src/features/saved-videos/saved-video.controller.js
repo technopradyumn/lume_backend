@@ -1,6 +1,9 @@
 import { SavedVideos } from "./saved-video.model.js";
+import { Video } from "../videos/video.model.js";
 import { ApiResponse } from "../../shared/utils/ApiResponse.js";
+import { ApiError } from "../../shared/utils/ApiError.js";
 import { asyncHandler } from "../../shared/utils/asyncHandler.js";
+import { isValidObjectId } from "mongoose";
 
 const getSavedVideos = asyncHandler(async (req, res) => {
   const saved = await SavedVideos.findOne({
@@ -16,6 +19,14 @@ const getSavedVideos = asyncHandler(async (req, res) => {
 
 const toggleSavedVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Invalid video ID");
+  }
+
+  const video = await Video.findById(videoId).select("_id");
+  if (!video) {
+    throw new ApiError(404, "Video not found");
+  }
   let saved = await SavedVideos.findOne({
     owner: req.user._id,
     name: "Watch Later",
