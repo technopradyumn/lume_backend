@@ -21,6 +21,10 @@ const normalizePublicMediaUrls = (value) => {
     return value;
   }
 
+  if (value && typeof value.toHexString === "function") {
+    return value.toHexString();
+  }
+
   if (value && typeof value.toObject === "function") {
     return normalizePublicMediaUrls(value.toObject());
   }
