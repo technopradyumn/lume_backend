@@ -9,6 +9,14 @@ const supabaseKey =
 const supabase =
   supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
+const getPublicBaseUrl = (req) => {
+  const configuredUrl = process.env.PUBLIC_BASE_URL?.replace(/\/$/, "");
+  if (configuredUrl) return configuredUrl;
+
+  const host = req?.get ? req.get("host") : null;
+  return host ? `https://${host}` : "";
+};
+
 const uploadOnSupabase = async (
   localFilePath,
   bucketName = "lume-uploads",
@@ -46,9 +54,7 @@ const uploadOnSupabase = async (
       }
     }
 
-    const protocol = req?.protocol || "http";
-    const host = req?.get ? req.get("host") : null;
-    const baseUrl = host ? `${protocol}://${host}` : "";
+    const baseUrl = getPublicBaseUrl(req);
     const cleanFilename = path.basename(localFilePath);
     const fileUrl = `${baseUrl}/temp/${cleanFilename}`;
 
@@ -59,9 +65,7 @@ const uploadOnSupabase = async (
   } catch (error) {
     console.error("Storage upload error:", error.message);
     const cleanFilename = path.basename(localFilePath);
-    const protocol = req?.protocol || "http";
-    const host = req?.get ? req.get("host") : null;
-    const baseUrl = host ? `${protocol}://${host}` : "";
+    const baseUrl = getPublicBaseUrl(req);
 
     return {
       url: `${baseUrl}/temp/${cleanFilename}`,

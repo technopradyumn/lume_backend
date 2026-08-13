@@ -3,6 +3,36 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 const app = express();
+app.set("trust proxy", 1);
+
+const normalizePublicMediaUrls = (value) => {
+  if (typeof value === "string") {
+    return value.replace(
+      /^http:\/\/lume-backend-cggh\.onrender\.com\//,
+      "https://lume-backend-cggh.onrender.com/"
+    );
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(normalizePublicMediaUrls);
+  }
+
+  if (value instanceof Date) {
+    return value;
+  }
+
+  if (value && typeof value.toObject === "function") {
+    return normalizePublicMediaUrls(value.toObject());
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, normalizePublicMediaUrls(item)])
+    );
+  }
+
+  return value;
+};
 
 app.use(
   cors({
@@ -15,6 +45,11 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
+app.use((req, res, next) => {
+  const sendJson = res.json.bind(res);
+  res.json = (body) => sendJson(normalizePublicMediaUrls(body));
+  next();
+});
 
 import userRouter from "./features/auth/user.routes.js";
 import tweetRouter from "./features/community/tweet.routes.js";
