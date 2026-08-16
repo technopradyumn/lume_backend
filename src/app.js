@@ -1,6 +1,11 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import {
+  API_VERSION,
+  BACKEND_VERSION,
+  versionPayload,
+} from "./shared/config/version.js";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -50,9 +55,23 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 app.use((req, res, next) => {
+  res.setHeader("X-Lume-Version", BACKEND_VERSION);
+  res.setHeader("X-Lume-Api-Version", API_VERSION);
   const sendJson = res.json.bind(res);
   res.json = (body) => sendJson(normalizePublicMediaUrls(body));
   next();
+});
+
+app.get("/api/version", (req, res) => {
+  res.status(200).json({ success: true, data: versionPayload });
+});
+
+app.get(`/api/${API_VERSION}`, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Lume API is available",
+    data: versionPayload,
+  });
 });
 
 import userRouter from "./features/auth/user.routes.js";

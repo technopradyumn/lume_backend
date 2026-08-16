@@ -1,5 +1,7 @@
 # Lume Backend
 
+Current service release: **1.1.0** · API namespace: **v1**
+
 The REST API powering Lume, a full-stack video platform for creators, viewers, and community interaction. It is built with Node.js, Express, MongoDB, Mongoose, JWT authentication, Multer uploads, and Supabase Storage.
 
 ## Stack
@@ -27,6 +29,15 @@ The REST API powering Lume, a full-stack video platform for creators, viewers, a
 | Saved videos | `/api/v1/saved-videos` | Watch Later library |
 | Notifications | `/api/v1/notifications` | User notification state |
 | Dashboard | `/api/v1/dashboard` | Creator analytics and video management |
+| Version metadata | `/api/version` or `/api/v1` | Service and API compatibility versions |
+
+## Release versioning
+
+This service follows Semantic Versioning and uses matching release branches,
+for example `version/backend-v1.1.0`. Existing API clients remain on the
+stable `/api/v1` namespace until an intentionally incompatible API revision is
+introduced. Run `npm run version:check` before publishing a release. See
+[`VERSIONING.md`](./VERSIONING.md) for the complete policy.
 
 ## Architecture
 
