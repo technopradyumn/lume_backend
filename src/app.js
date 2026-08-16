@@ -64,6 +64,7 @@ import likeRouter from "./features/likes/like.routes.js";
 import dashboardRouter from "./features/users/dashboard.routes.js";
 import notificationRouter from "./features/notifications/notification.routes.js";
 import savedVideosRouter from "./features/saved-videos/saved-video.routes.js";
+import searchRouter from "./features/search/search.routes.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/tweets", tweetRouter);
@@ -74,6 +75,7 @@ app.use("/api/v1/likes", likeRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/notifications", notificationRouter);
 app.use("/api/v1/saved-videos", savedVideosRouter);
+app.use("/api/v1/search", searchRouter);
 
 import { ApiError } from "./shared/utils/ApiError.js";
 

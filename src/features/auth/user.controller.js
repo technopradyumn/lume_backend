@@ -6,6 +6,17 @@ import { ApiResponse } from "../../shared/utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
+const cookieOptionsFor = (token) => {
+  const decoded = jwt.decode(token);
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    ...(decoded?.exp ? { expires: new Date(decoded.exp * 1000) } : {}),
+  };
+};
+
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -87,15 +98,13 @@ const registerUser = asyncHandler(async (req, res) => {
     user._id
   );
 
-  const options = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-  };
+  const accessCookieOptions = cookieOptionsFor(accessToken);
+  const refreshCookieOptions = cookieOptionsFor(refreshToken);
 
   return res
     .status(201)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, accessCookieOptions)
+    .cookie("refreshToken", refreshToken, refreshCookieOptions)
     .json(
       new ApiResponse(
         201,
@@ -144,15 +153,13 @@ const loginUser = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
-  const options = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-  };
+  const accessCookieOptions = cookieOptionsFor(accessToken);
+  const refreshCookieOptions = cookieOptionsFor(refreshToken);
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, accessCookieOptions)
+    .cookie("refreshToken", refreshToken, refreshCookieOptions)
     .json(
       new ApiResponse(
         200,
@@ -182,6 +189,8 @@ const logoutUser = asyncHandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
   };
 
   return res
@@ -215,18 +224,16 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Refresh token is expired or used");
     }
 
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
-
-    const { accessToken, newRefreshToken } =
+    const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefereshTokens(user._id);
+
+    const accessCookieOptions = cookieOptionsFor(accessToken);
+    const refreshCookieOptions = cookieOptionsFor(newRefreshToken);
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
+      .cookie("accessToken", accessToken, accessCookieOptions)
+      .cookie("refreshToken", newRefreshToken, refreshCookieOptions)
       .json(
         new ApiResponse(
           200,
