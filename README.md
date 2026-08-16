@@ -33,8 +33,8 @@ The REST API powering Lume, a full-stack video platform for creators, viewers, a
 
 ## Release versioning
 
-This service follows Semantic Versioning and uses matching release branches,
-for example `version/backend-v1.1.0`. Existing API clients remain on the
+This service follows Semantic Versioning and GitFlow release branches, for
+example `release/1.1.0`. Existing API clients remain on the
 stable `/api/v1` namespace until an intentionally incompatible API revision is
 introduced. Run `npm run version:check` before publishing a release. See
 [`VERSIONING.md`](./VERSIONING.md) for the complete policy.
